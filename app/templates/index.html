@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+<meta name="renderer" content="webkit">  <!--默认使用极速核 -->
+
+{% block scripts %}
+{{ moment.include_moment(local_js = '/static/js/moment.js') }}
+{% endblock %}
+
+{% block title %}首页{% endblock %}
+
+{% block page_content %}
+<div style="width:500px">
+{{ wtf.quick_form(form,form_type="inline") }}
+</div>
+<div style="margin-top:10px">
+    {% if findDanhao %}
+        {% for danhao in findDanhao %}
+            <ul>{{ danhao.NAME }},&nbsp;{{ danhao.DANHAO }},&nbsp;{{ danhao.WULIU }},&nbsp;{{ danhao.DATE }}</ul>
+        {% endfor %}
+    {% elif findDanhao == [] %}
+        无记录
+    {% endif %}
+</div>
+
+<div style="margin-top:20px;width:800px">
+    <b>本月快递总数为：{{ total }}</b>
+</div>
+
+<!-- 昨天发件数统计-->
+<div style="margin-top:20px;margin-left:30px;float:left">
+    <b>今天：<br></b>
+    {% for one in data["today"] %}
+        {% if one == 'LiuYun' %}
+            <li>刘云:{{ data["today"][one] }}</li>
+        {% elif one == 'HuangShuo' %}
+            <li>黄硕:{{ data["today"][one] }}</li>
+        {% elif one == 'LiJinSheng' %}
+            <li>李金生:{{ data["today"][one] }}</li>
+        {% elif one == 'WeiSui' %}
+            <li>韦随:{{ data["today"][one] }}</li>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<!-- 昨天发件数统计-->
+<div style="margin-top:20px;margin-left:30px;float:left">
+    <b>昨天：<br></b>
+    {% for one in data["yestoday"] %}
+        {% if one == 'LiuYun' %}
+            <li>刘云:{{ data["yestoday"][one] }}</li>
+        {% elif one == 'HuangShuo' %}
+            <li>黄硕:{{ data["yestoday"][one] }}</li>
+        {% elif one == 'LiJinSheng' %}
+            <li>李金生:{{ data["yestoday"][one] }}</li>
+        {% elif one == 'WeiSui' %}
+            <li>韦随:{{ data["yestoday"][one] }}</li>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<div style="margin-top:20px;margin-left:30px;float:left">
+    <b>本月：<br></b>
+    {% for kuaidi in data["thismonth"] %}
+        {% if kuaidi == 'shentong' %}
+            <li>申通:{{ data["thismonth"][kuaidi] }}</li>
+        {% elif kuaidi == 'zhongtong' %}
+            <li>中通:{{ data["thismonth"][kuaidi] }}</li>
+        {% elif kuaidi == 'shunfeng' %}
+            <li>顺丰:{{ data["thismonth"][kuaidi] }}</li>
+        {% elif kuaidi == 'youshuwuliu' %}
+            <li>优速:{{ data["thismonth"][kuaidi] }}</li>
+        {% elif kuaidi == 'yuantong' %}
+            <li>圆通:{{ data["thismonth"][kuaidi] }}</li>
+        {% elif kuaidi == 'youzhengguonei' %}
+            <li>邮政:{{ data["thismonth"][kuaidi] }}</li>
+        {% endif %}
+
+    {% endfor %}
+</div>
+
+<div style="margin-top:20px;margin-left:30px;float:left">
+    <b>本月：<br></b>
+    {% for one in data["everyone"] %}
+        {% if one == 'LiuYun' %}
+            <li>刘云:{{ data["everyone"][one] }}</li>
+        {% elif one == 'HuangShuo' %}
+            <li>黄硕:{{ data["everyone"][one] }}</li>
+        {% elif one == 'LiJinSheng' %}
+            <li>李金生:{{ data["everyone"][one] }}</li>
+        {% elif one == 'WeiSui' %}
+            <li>韦随:{{ data["everyone"][one] }}</li>
+        {% endif %}
+
+    {% endfor %}
+</div>
+
+<div style="margin-top:20px;margin-left:30px;float:left">
+    <b>上个月：<br></b>
+    {% for kuaidi in data["last"] %}
+        {% if kuaidi == 'shentong' %}
+            <li>申通:{{ data["last"][kuaidi] }}</li>
+        {% elif kuaidi == 'zhongtong' %}
+            <li>中通:{{ data["last"][kuaidi] }}</li>
+        {% elif kuaidi == 'shunfeng' %}
+            <li>顺丰:{{ data["last"][kuaidi] }}</li>
+        {% elif kuaidi == 'youshuwuliu' %}
+            <li>优速:{{ data["last"][kuaidi] }}</li>
+        {% elif kuaidi == 'yuantong' %}
+            <li>圆通:{{ data["last"][kuaidi] }}</li>
+        {% elif kuaidi == 'youzhengguonei' %}
+            <li>邮政:{{ data["last"][kuaidi] }}</li>
+        {% endif %}
+
+    {% endfor %}
+</div>
+
+<div style="margin-top:20px;margin-left:30px;float:left">
+    <b>上个月：<br></b>
+    {% for one in data["last_everyone"] %}
+        {% if one == 'LiuYun' %}
+            <li><a href="/LiuYun">刘云:{{ data["last_everyone"][one] }}</a></li>
+        {% elif one == 'HuangShuo' %}
+            <li><a href="/HuangShuo">黄硕:{{ data["last_everyone"][one] }}</a></li>
+        {% elif one == 'LiJinSheng' %}
+            <li><a href="/LiJinSheng">李金生:{{ data["last_everyone"][one] }}</a></li>
+        {% elif one == 'WeiSui' %}
+            <li><a href="/WeiSui">韦随:{{ data["last_everyone"][one] }}</a></li>
+        {% endif %}
+
+    {% endfor %}
+</div>
+
+{% endblock %}

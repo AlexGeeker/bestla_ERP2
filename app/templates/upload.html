@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}上传数据{% endblock %}
+
+<!-- 提交表单 -->
+{% block page_content %}
+<div style="margin-top:20px;width:200px">
+    {{ wtf.quick_form(form) }}
+</div>
+
+<div style="margin-top:20px">
+    <span style="color: red;">{{ message }} </span>
+</div>
+
+<div style="margin-top:20px">
+{% if filename %}
+    文件名：{{ filename }} <br>
+{% endif %}
+{% if name %}
+    发件人：{{ name }} <br>
+{% endif %}
+{% if date %}
+    发件日期：{{ date }} <br>
+{% endif %}
+</div>
+
+<div>
+{% if existed_record > 0 %}
+    {{ existed_record }}条重复，未记录 <br>
+{% endif %}
+
+{% if recorded > 0 %}
+    {{ recorded }}条信息已记录。<br>
+{% endif %}
+
+</div>
+
+{% endblock %}

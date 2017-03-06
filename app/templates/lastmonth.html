@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}上月统计{% endblock %}
+
+{% block page_content %}
+<b>说明：这里显示的日期，是上传csv文件时选择的日期，非真实的发件日期。</b>
+<b>如果几天的一起上传，总数会叠加在一天。</b>
+{% for x in count %}
+
+    <li>{{ x[0][0] }} 发件数：{{ x[1] }}</li>
+{% endfor %}
+
+{% endblock %}
