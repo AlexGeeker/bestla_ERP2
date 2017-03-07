@@ -5,8 +5,9 @@
 
 <!-- 提交表单 -->
 {% block page_content %}
-<div style="margin-top:20px;width:200px">
-    {{ wtf.quick_form(form) }}
+
+<div style="margin-top:20px;width:1000px">
+    {{ wtf.quick_form(form2,form_type="inline") }}
 </div>
 
 <div style="margin-top:20px">
