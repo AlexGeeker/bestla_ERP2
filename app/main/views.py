@@ -32,41 +32,34 @@ def index():
         # 查询单号（本月及上月）
         findDanhao = dbs.session.query(Record).filter(Record.DANHAO == danhao).all() + dbs.session.query(Last_Month_Record).filter(Last_Month_Record.DANHAO == danhao).all()
 
-    data = dict()
-
-    # 今天各人发件数
-    todayCount = {}
-    for one in dbs.session.query(dbs.distinct(Record.NAME)).filter(Record.DATE == today):
-        todayCount[one[0]] = dbs.session.query(Record).filter(Record.NAME == one[0]).count()
-
-    # 昨天各人发件数
-    yesterdayCount = {}
-    for one in dbs.session.query(dbs.distinct(Record.NAME)).filter(Record.DATE == yesterday):
-        yesterdayCount[one[0]] = dbs.session.query(Record).filter(Record.NAME == one[0]).count()
-
     # 本月快递总数
     allCount = dbs.session.query(Record).count()
 
+    # 今天/昨天/本月 各人发件数
+    todayCount = {}
+    yesterdayCount = {}
+    everyoneCount = {} # 本月
+    for one in dbs.session.query(Record.NAME).distinct():
+        todayCount[one[0]] = dbs.session.query(Record).filter(Record.DATE == today).filter(Record.NAME == one[0]).count()
+        yesterdayCount[one[0]] = dbs.session.query(Record).filter(Record.DATE == yesterday).filter(Record.NAME == one[0]).count()
+        everyoneCount[one[0]] = dbs.session.query(Record).filter(Record.NAME == one[0]).count()
+
     # 本月各快递总数
     kuaidicount = {}
-    for wuliu in dbs.session.query(dbs.distinct(Record.WULIU)):
+    for wuliu in dbs.session.query(Record.WULIU).distinct():
         kuaidicount[wuliu[0]] = dbs.session.query(Record).filter(Record.WULIU == wuliu[0]).count()
-
-    # 本月所有人发件数
-    everyoneCount = {}
-    for one in dbs.session.query(dbs.distinct(Record.NAME)):
-        everyoneCount[one[0]] = dbs.session.query(Record).filter(Record.NAME == one[0]).count()
 
     # 上个月各快递公司总数
     lastMonth_kuaidicount = {}
-    for wuliu in dbs.session.query(dbs.distinct(Last_Month_Record.WULIU)):
+    for wuliu in dbs.session.query(Last_Month_Record.WULIU).distinct():
         lastMonth_kuaidicount[wuliu[0]] = dbs.session.query(Last_Month_Record).filter(Last_Month_Record.WULIU == wuliu[0]).count()
 
     # 上个月每人发件数
     lastMonth_everyoneCount = {}
-    for one in dbs.session.query(dbs.distinct(Last_Month_Record.NAME)):
+    for one in dbs.session.query(Last_Month_Record.NAME).distinct():
         lastMonth_everyoneCount[one[0]] = dbs.session.query(Last_Month_Record).filter(Last_Month_Record.NAME == one[0]).count()
 
+    data = dict()
     data["today"] = todayCount
     data["yestoday"] = yesterdayCount
     data["thismonth"] = kuaidicount
@@ -75,12 +68,15 @@ def index():
     data["last_everyone"] = lastMonth_everyoneCount
 
     ### 上传文件部分 ###
+    filedata = dict()  # 通过该词典传递多个参数
+
     form2 = UploadForm()
-    fname = None
-    name = None
+    fname = None  # 文件安全名
+    name = None  # 发件人姓名
     selected_date = None
     existed_record = 0
     recorded = 0
+
     if form2.submit2.data and form2.validate_on_submit():
 
         selected_date = form2.date.data
@@ -102,8 +98,10 @@ def index():
         if ii == 0:
             form2.file.data.save(os.path.join(file_dir, fname))  # 保存文件到upload目录
         else:
-            return render_template('index.html', form1=form1, form2=form2, filename=fname,data = data, message=u'该文件已存在，请重新上传！', name=name,
-                                   date=selected_date, existed_record=existed_record, recorded=recorded)
+            filedata["name"] = name
+            filedata["fname"] = fname
+            filedata["date"] = selected_date
+            return render_template('index.html', form1=form1, form2=form2, data = data, message=u'该文件已存在，请重新上传！', filedata = filedata, existed_record = existed_record, recorded = recorded)
 
         # 读取文件，并对比数据库
         with open(os.path.join(file_dir, fname)) as csvFile:
@@ -121,10 +119,16 @@ def index():
                         new_record = Last_Month_Record(name, danhao, "0", selected_date)
                     elif selected_date[0:4] + selected_date[5:7] == currentMonth:
                         new_record = Record(name, danhao, "0", selected_date)
-                    dbs.session.add(new_record)
+                        dbs.session.add(new_record)
                 elif recorded > 50:
-                    dbs.session.commit()
-        dbs.session.commit()
+                    try:
+                        dbs.session.commit()
+                    except:
+                        dbs.session.rollback()
+        try:
+            dbs.session.commit()
+        except:
+            dbs.session.rollback()
 
         # 创建当天日期文件夹，并将文件转移至该文件夹
         currentday_file_dir = os.path.join(file_dir, selected_date)
@@ -132,71 +136,11 @@ def index():
             os.makedirs(currentday_file_dir)
         shutil.move(os.path.join(file_dir, fname), currentday_file_dir)
 
-    return render_template('index.html', form1=form1, findDanhao=findDanhao, total=allCount, data = data,form2=form2, filename=fname, name=name, date=selected_date,
-                           existed_record=existed_record, recorded=recorded)
+    filedata["name"] = name
+    filedata["fname"] = fname
+    filedata["date"] = selected_date
+    return render_template('index.html', form1=form1, findDanhao=findDanhao, total=allCount, data = data,form2=form2, existed_record=existed_record, recorded=recorded,filedata = filedata)
 
-"""
-@main.route('/api/upload', methods=['GET', 'POST'], strict_slashes=False)
-def api_upload():
-    form2 = UploadForm()
-    fname = None
-    name = None
-    selected_date = None
-    existed_record = 0
-    recorded = 0
-    if form2.submit2.data and form2.validate_on_submit():
-
-        selected_date = form2.date.data
-        name = form2.name.data
-        fname = secure_filename(form2.file.data.filename)
-
-        # 获取文件名
-        file_dir = os.path.join(basedir, UPLOAD_FOLDER)  # 文件路径
-        if not os.path.exists(file_dir):
-            os.makedirs(file_dir)  # 如果文件夹不存在，则创建文件夹
-
-        # 文件名重复判断
-        ii = 0
-        print file_dir
-        for parent, dirnames, filenames in os.walk(file_dir):  # 遍历目录并调用数据库写入函数
-            for filename in filenames:
-                if filename == fname:
-                    ii = ii + 1
-        if ii == 0:
-            form2.file.data.save(os.path.join(file_dir, fname))  # 保存文件到upload目录
-        else:
-            return render_template('upload.html', form1=form2, filename=fname, message=u'该文件已存在，请重新上传！', name=name,
-                                   date=selected_date, existed_record=existed_record, recorded=recorded)
-
-        # 读取文件，并对比数据库
-        with open(os.path.join(file_dir, fname)) as csvFile:
-            new_record = None
-            dictreader = csv.DictReader(csvFile)
-            for line in dictreader:
-                danhao = line['\xcc\xf5\xc2\xeb'].strip()
-                i = dbs.session.query(Record).filter(Record.DANHAO == danhao).count() +dbs.session.query(Last_Month_Record).filter(Last_Month_Record.DANHAO == danhao).count()
-                if i > 0: # 如果单号已经存在于数据中
-                    existed_record = existed_record + 1
-                elif i == 0:  # 若单号不在数据库中，则写入数据库
-                    recorded = recorded + 1
-                    if selected_date[0:4] + selected_date[5:7] == lastMonth:
-                        new_record = Last_Month_Record(name, danhao, "0", selected_date)
-                    elif selected_date[0:4] + selected_date[5:7] == currentMonth:
-                        new_record = Record(name, danhao, "0", selected_date)
-                    dbs.session.add(new_record)
-                elif recorded > 50:
-                    dbs.session.commit()
-        dbs.session.commit()
-
-        # 创建当天日期文件夹，并将文件转移至该文件夹
-        currentday_file_dir = os.path.join(file_dir, selected_date)
-        if not os.path.exists(currentday_file_dir):  # 如果文件夹不存在，则创建文件夹
-            os.makedirs(currentday_file_dir)
-        shutil.move(os.path.join(file_dir, fname), currentday_file_dir)
-
-    return render_template('upload.html', form2=form2, filename=fname, name=name, date=selected_date,
-                           existed_record=existed_record, recorded=recorded)
-"""
 
 # 显示上个月每天每人发件数
 @main.route('/<user_name>', methods=['GET', 'POST'])
@@ -228,7 +172,10 @@ def kuaidi_update():
         record = dbs.session.query(Record).filter(Record.DANHAO == wuliu.DANHAO).first()
         record.WULIU = kuaidi
         if x > 100:
-            dbs.session.commit()
+            try:
+                dbs.session.commit()
+            except:
+                dbs.session.rollback()
         print u'%s已更新为%s' % (wuliu.DANHAO, kuaidi)
 
     # 更新上月
@@ -239,10 +186,15 @@ def kuaidi_update():
         record = dbs.session.query(Last_Month_Record).filter(Last_Month_Record.DANHAO == wuliu.DANHAO).first()
         record.WULIU = kuaidi
         if y >100:
-            dbs.session.commit()
+            try:
+                dbs.session.commit()
+            except:
+                dbs.session.rollback()
         print u'%s已更新为%s' % (wuliu.DANHAO, kuaidi)
-
-    dbs.session.commit()
+    try:
+        dbs.session.commit()
+    except:
+        dbs.session.rollback()
 
     return redirect(url_for(".index"))
 
