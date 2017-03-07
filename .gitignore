@@ -13,4 +13,5 @@ build
 
 # My configurations:
 *.db
+*.csv
 deploy_key_rsa
