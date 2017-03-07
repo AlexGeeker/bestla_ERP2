@@ -9,21 +9,62 @@
 
 {% block title %}首页{% endblock %}
 
+<!-- 查询表单部分 -->
 {% block page_content %}
 <div style="width:500px">
-{{ wtf.quick_form(form,form_type="inline") }}
+    <b>单号查询：</b><p>
+{{ wtf.quick_form(form1,form_type="inline") }}
 </div>
+
 <div style="margin-top:10px">
     {% if findDanhao %}
         {% for danhao in findDanhao %}
-            <ul>{{ danhao.NAME }},&nbsp;{{ danhao.DANHAO }},&nbsp;{{ danhao.WULIU }},&nbsp;{{ danhao.DATE }}</ul>
+            <li>{{ danhao.NAME }},&nbsp;{{ danhao.DANHAO }},&nbsp;{{ danhao.WULIU }},&nbsp;{{ danhao.DATE }}</li>
         {% endfor %}
     {% elif findDanhao == [] %}
         无记录
     {% endif %}
 </div>
 
-<div style="margin-top:20px;width:800px">
+<!-- 上传文件部分 -->
+
+<div style="margin-top:50px;width:800px">
+    <hr>
+    <b>CSV文件上传，请选择正确的日期和姓名：</b><p>
+    {{ wtf.quick_form(form2,form_type="inline") }}
+</div>
+
+<div style="margin-top:20px">
+    <span style="color: red;">{{ message }} </span>
+</div>
+
+<div style="margin-top:20px">
+{% if filename %}
+    文件名：{{ filename }} <br>
+{% endif %}
+{% if name %}
+    发件人：{{ name }} <br>
+{% endif %}
+{% if date %}
+    发件日期：{{ date }} <br>
+{% endif %}
+</div>
+
+<div>
+{% if existed_record > 0 %}
+    共<span style="color: red;">{{ existed_record }}</span>条重复记录，未计入。 <br>
+{% endif %}
+
+{% if recorded > 0 %}
+    共<span style="color: red;">{{ recorded }}</span>条信息已记录。<br>
+{% endif %}
+
+</div>
+
+<!-- 数据统计部分 -->
+
+<div style="margin-top:100px;width:800px">
+    <hr>
     <b>本月快递总数为：{{ total }}</b>
 </div>
 
