@@ -39,20 +39,20 @@
 </div>
 
 <div style="margin-top:20px">
-{% if filename %}
-    文件名：{{ filename }} <br>
+{% if filedata["fname"] %}
+    文件名：{{ filedata["fname"] }} <br>
 {% endif %}
-{% if name %}
-    发件人：{{ name }} <br>
+{% if filedata["name"] %}
+    发件人：{{ filedata["name"] }} <br>
 {% endif %}
-{% if date %}
-    发件日期：{{ date }} <br>
+{% if filedata["date"] %}
+    发件日期：{{ filedata["date"] }} <br>
 {% endif %}
 </div>
 
 <div>
 {% if existed_record > 0 %}
-    共<span style="color: red;">{{ existed_record }}</span>条重复记录，未计入。 <br>
+    <b>共<span style="color: red;">{{ existed_record }}</span>条重复记录，未计入。 </b><br>
 {% endif %}
 
 {% if recorded > 0 %}
