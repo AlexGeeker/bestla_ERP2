@@ -20,7 +20,7 @@ CSVdescrpition = u'选择CSV文件（要求1：文档第一行必须有”条码
 
 class NameForm(FlaskForm):
     name = StringField(u'单号查询，请输入单号：', validators=[Required()])
-    submit = SubmitField(u'提交')
+    submit1 = SubmitField(u'提交')
 
 # 上传文件表单
 class UploadForm(FlaskForm):
@@ -40,4 +40,4 @@ class UploadForm(FlaskForm):
         ('LiuYun', u'刘云')],
         validators=[DataRequired()])
 
-    submit = SubmitField(u'上传')
+    submit2 = SubmitField(u'上传')
