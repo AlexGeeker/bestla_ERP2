@@ -190,7 +190,7 @@ def kuaidi_update():
                 dbs.session.commit()
             except:
                 dbs.session.rollback()
-        print u'%s已更新为%s' % (wuliu.DANHAO, kuaidi)
+        print '%s updated to %s' % (wuliu.DANHAO, kuaidi)
     try:
         dbs.session.commit()
     except:
