@@ -12,6 +12,7 @@ class Config:
         pass
 
 class DevelopmentConfig(Config):
+    debug = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'KDTJ.db')
 
 config = {
